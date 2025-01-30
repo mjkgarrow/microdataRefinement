@@ -6,6 +6,7 @@
     <title>Microdat Refinement</title>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="./script.js" type="module"></script>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
       :root {
         --cellSize: 50px;
@@ -20,17 +21,9 @@
         font-display: swap;
       }
 
-      * {
-        margin: 0;
-        padding: 0;
-        user-select: none;
-      }
-
       html,
       body {
-        position: relative;
-        background: #001d2f;
-        color: #bdffff;
+        font-family: "Lumon Industries";
         background-image: radial-gradient(rgba(25, 65, 100, 0.75), black 120%);
         height: 100lvh;
         width: 100lvw;
@@ -59,161 +52,59 @@
         pointer-events: none;
       }
 
-      .selectableWrapper {
-        color: white;
-        aspect-ratio: 1;
-        font-size: 1.2rem;
-        animation-direction: alternate;
-        animation-timing-function: ease-in-out;
-        animation-iteration-count: infinite;
-        transition: all 0.5s ease-in-out;
+      /* text {
+        user-select: none;
+        font-size: 1.5rem;
+      } */
+
+      .node {
+        transition: opacity 0.3s;
+      }
+      .drop-box {
+        transition: x 0.3s, y 0.3s;
       }
 
-      .selectable {
-        color: white;
-        display: grid;
-        place-content: center;
-        /* position: absolute;
-        top: auto;
-        left: auto; */
-        /* transform: translate(calc(25px - 50%), calc(25px - 50%)); */
-        margin: 2px;
-        filter: blur(0.3px);
-        text-shadow: 0 0 5px #ffffff20, 0 0 10px #ffffff20, 0 0 15px #bdffff20;
-        transition: all 0.5s ease-in-out;
-      }
-
-      .intersected {
-        scale: 2.5;
-        transition: all 0.5s ease-in-out;
-      }
-
-      .no-transition {
-        transition: none;
-      }
-
-      @keyframes drift1 {
-        0% {
-          transform: translate(0, 0);
-        }
-
-        50% {
-          transform: translate(-5px, 5px);
-        }
-
-        100% {
-          transform: translate(0, 0);
-        }
-      }
-
-      @keyframes drift2 {
-        0% {
-          transform: translate(0, 0);
-        }
-
-        50% {
-          transform: translate(5px, -5px);
-        }
-
-        100% {
-          transform: translate(0, 0);
-        }
-      }
-
-      #numbersWrapper {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(var(--cellSize), 1fr));
-        width: 100vw;
-        overflow: hidden;
-      }
-
-      header {
-        border: 2px solid #bdffff;
-        margin: 2rem;
-        padding: 0.3em 0.8em;
-        border-radius: 0.1em;
-      }
-
-      #logo {
-        width: 12em;
-        position: absolute;
-        top: -2em;
-        right: 0;
-      }
-
-      #logotype {
-        position: absolute;
-        top: 38%;
-        left: -0.2em;
-        width: 100%;
-        text-align: center;
-        font-size: 1.6em;
-        font-family: "Lumon Industries";
-        text-transform: uppercase;
+      svg {
+        touch-action: none; /* Disable default touch behaviors like panning and zooming */
       }
     </style>
   </head>
-  <body style="overflow: hidden">
-    <header>
-      <div id="logo">
-        <div id="logotype">Lumon</div>
-        <div id="globe">
-          <svg viewBox="0 0 686 394" xmlns="http://www.w3.org/2000/svg">
+  <body
+    class="relative overflow-hidden text-[#bdffff] bg-[#001d2f] h-screen w-screen p-4">
+    <header
+      class="flex justify-between items-center border-2 border-[#bdffff] p-3">
+      <div class="flex gap-4">
+        <h1 class="text-4xl">Microdata Refinement</h1>
+        <button
+          id="resetButton"
+          class="border p-2 text-lg leading-none cursor-pointer hover:text-white transition-all duration-75 ease-in-out">
+          Reset
+        </button>
+      </div>
+
+      <div class="relative">
+        <div class="text-center text-2xl uppercase">Lumon</div>
+        <div
+          class="absolute -translate-y-[10%] -top-1/2 left-1/2 -translate-x-1/2 h-20">
+          <svg
+            class="w-auto h-full aspect-[686/394]"
+            viewBox="0 0 686 394"
+            xmlns="http://www.w3.org/2000/svg">
             <path
               d="M 577.076 197 C 577.076 225.966 557.645 253.034 525.682 274.337 L 525.682 274.343 L 525.672 274.343 C 518.813 278.914 511.377 283.219 503.432 287.221 C 460.017 309.087 400.323 322.923 334.61 323.762 C 333.909 323.788 333.205 323.802 332.5 323.802 C 332.25 323.802 331.999 323.8 331.749 323.797 C 331.236 323.8 330.723 323.802 330.21 323.802 C 329.951 323.802 329.692 323.802 329.433 323.801 C 329.047 323.802 328.661 323.802 328.274 323.802 C 260.068 323.802 197.922 309.788 153.116 287.221 C 108.141 264.568 79.472 232.184 79.472 197 C 79.472 161.816 108.141 129.432 153.116 106.779 C 197.922 84.212 260.068 70.198 328.274 70.198 C 328.661 70.198 329.047 70.198 329.433 70.199 C 329.692 70.198 329.951 70.198 330.21 70.198 C 330.723 70.198 331.236 70.2 331.749 70.203 C 331.999 70.2 332.25 70.198 332.5 70.198 C 333.205 70.198 333.909 70.212 334.61 70.238 C 400.323 71.077 460.017 84.913 503.432 106.779 C 548.407 129.432 577.076 161.816 577.076 197 Z M 500.733 112.138 C 473.981 98.664 441.135 88.325 404.378 82.267 C 422.539 88.491 438.982 96.912 452.964 107.028 C 456.612 109.668 460.106 112.436 463.431 115.321 L 506.837 115.321 C 504.842 114.244 502.807 113.183 500.733 112.138 Z M 475.15 267.258 L 525.607 267.258 C 554.464 247.384 571.076 223.35 571.076 197 C 571.076 168.471 551.603 142.656 518.199 121.898 L 470.514 121.898 C 479.282 130.619 486.6 140.236 492.159 150.5 L 485.502 150.5 C 479.499 140.178 471.525 130.585 461.868 121.898 L 400.399 121.898 C 404.643 130.628 408.177 140.24 410.857 150.5 L 404.718 150.5 C 401.916 140.168 398.2 130.568 393.713 121.898 L 271.287 121.898 C 266.8 130.568 263.084 140.168 260.282 150.5 L 254.143 150.5 C 256.823 140.24 260.357 130.628 264.601 121.898 L 198.552 121.898 C 188.896 130.585 180.921 140.178 174.919 150.5 L 168.261 150.5 C 173.82 140.236 181.138 130.619 189.906 121.898 L 139.054 121.898 L 139.054 121.462 C 105.219 142.295 85.472 168.271 85.472 197 C 85.472 223.397 102.143 247.47 131.096 267.364 L 131.096 267.258 L 185.27 267.258 C 176.512 257.64 169.46 247.059 164.484 235.814 L 170.88 235.814 C 176.212 247.14 183.846 257.692 193.436 267.258 L 262.359 267.258 C 258.122 257.634 254.719 247.058 252.322 235.814 L 258.399 235.814 C 260.889 247.145 264.449 257.705 268.906 267.258 L 396.094 267.258 C 400.551 257.705 404.111 247.145 406.601 235.814 L 412.678 235.814 C 410.281 247.058 406.878 257.634 402.641 267.258 L 466.984 267.258 C 476.574 257.692 484.208 247.14 489.54 235.814 L 495.936 235.814 C 490.96 247.059 483.908 257.64 475.15 267.258 Z M 452.964 286.972 C 438.982 297.088 422.539 305.509 404.378 311.733 C 441.135 305.675 473.981 295.336 500.733 281.862 C 505.538 279.442 510.132 276.934 514.505 274.343 L 468.208 274.343 C 463.5 278.814 458.404 283.036 452.964 286.972 Z M 392.434 107.813 C 394.011 110.217 395.526 112.722 396.974 115.321 L 454.014 115.321 C 452.524 114.158 451.001 113.014 449.447 111.889 C 426.009 94.931 395.958 83.007 362.141 78.358 C 373.714 84.912 384.098 95.105 392.434 107.813 Z M 392.434 286.187 C 384.098 298.895 373.714 309.088 362.141 315.642 C 395.958 310.993 426.009 299.069 449.447 282.111 C 452.895 279.617 456.187 277.025 459.316 274.343 L 399.284 274.343 C 397.161 278.514 394.872 282.471 392.434 286.187 Z M 155.815 112.138 C 153.741 113.183 151.706 114.244 149.711 115.321 L 196.989 115.321 C 200.314 112.435 203.808 109.668 207.456 107.028 C 222.308 96.283 239.936 87.45 259.452 81.131 C 219.748 86.982 184.322 97.78 155.815 112.138 Z M 155.815 281.862 C 184.322 296.22 219.748 307.018 259.452 312.869 C 239.936 306.55 222.308 297.717 207.456 286.972 C 202.016 283.036 196.92 278.814 192.212 274.343 L 142.043 274.343 C 146.416 276.934 151.01 279.442 155.815 281.862 Z M 272.566 286.187 C 270.128 282.471 267.839 278.514 265.716 274.343 L 201.104 274.343 C 204.233 277.025 207.525 279.617 210.973 282.111 C 235.768 300.05 267.963 312.356 304.187 316.376 C 292.081 309.862 281.219 299.379 272.566 286.187 Z M 272.566 107.813 C 281.219 94.621 292.081 84.138 304.187 77.624 C 267.963 81.644 235.768 93.95 210.973 111.889 C 209.419 113.014 207.896 114.158 206.406 115.321 L 268.026 115.321 C 269.474 112.722 270.989 110.217 272.566 107.813 Z M 387.417 111.104 C 373.494 89.88 355.287 77.037 334.561 76.238 C 333.528 76.225 332.493 76.215 331.456 76.208 C 310.309 76.62 291.734 89.533 277.583 111.104 C 276.681 112.479 275.801 113.885 274.944 115.321 L 390.056 115.321 C 389.199 113.885 388.319 112.479 387.417 111.104 Z M 277.583 282.896 C 291.734 304.467 310.309 317.38 331.456 317.792 C 332.493 317.785 333.528 317.775 334.561 317.762 C 355.287 316.963 373.494 304.12 387.417 282.896 C 389.208 280.166 390.913 277.312 392.525 274.343 L 272.475 274.343 C 274.087 277.312 275.792 280.166 277.583 282.896 Z"
               style="fill: #bdffff"></path>
           </svg>
         </div>
       </div>
-      <h1>Microdata Refinement</h1>
     </header>
-    <div id="numbersWrapper"></div>
-    <div
-      style="
-        position: fixed;
-        bottom: 0px;
-        width: 100%;
-        background-color: #001d2f;
-        padding: 1rem;
-      ">
-      <div
-        style="
-          display: flex;
-          gap: 1rem;
-          font-size: 4rem;
-          justify-content: space-around;
-        ">
-        <div
-          class="bucket"
-          id="bucket1"
-          style="border: 1px solid #bdffff; padding: 0.2rem 2rem">
-          01
-        </div>
-        <div
-          class="bucket"
-          id="bucket2"
-          style="border: 1px solid #bdffff; padding: 0.2rem 2rem">
-          02
-        </div>
-        <div
-          class="bucket"
-          id="bucket3"
-          style="border: 1px solid #bdffff; padding: 0.2rem 2rem">
-          03
-        </div>
-        <div
-          class="bucket"
-          id="bucket4"
-          style="border: 1px solid #bdffff; padding: 0.2rem 2rem">
-          04
-        </div>
-        <div
-          class="bucket"
-          id="bucket5"
-          style="border: 1px solid #bdffff; padding: 0.2rem 2rem">
-          05
-        </div>
-      </div>
+    <main class="w-full h-full">
+      <!-- <canvas id="numbersCanvas" class=""></canvas> -->
+      <svg id="numbersSVG" class="h-full w-full overflow-visible"></svg>
+    </main>
+    <div class="absolute bottom-5 left-5">
+      <p>
+        <a href="https://github.com/mjkgarrow" target="_blank">By Matt G</a>
+      </p>
     </div>
   </body>
 </html>
