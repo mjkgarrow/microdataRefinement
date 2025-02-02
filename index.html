@@ -8,10 +8,6 @@
     <script src="./script.js" type="module"></script>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
-      :root {
-        --cellSize: 50px;
-      }
-
       @font-face {
         font-family: "Lumon Industries";
         src: url("data:font/woff2;charset=utf-8;base64,d09GMgABAAAAAAMcAA4AAAAABkgAAALJAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbIBwwBmAARBEICoJAghkLFAABNgIkAyQEIAWEFgc8GxoFyB6D426JpYgoIto/X8Zdy3PqEVRr//bsHX/AAD+wAdZIQgKpVDSTcHHADo0hYYGES+y/nx+X798NZDzAMxJ0VttcLw0MxehrQl6i87/fbeKa/N8gD9hCkeL/C8CIBl/TNAp4QBPN4qLdaPg0ndIGtkv08/PKAgKjgCSEWgi0lsqAduwqqYEgOXQAgdZKeNi438WdcJo0kHGmxaKDjHSA43l5IG1BQbEhP8QjPZRg56dTJwAIVLhHfACmoKe27JwDX0tJDywAxL/kA3owSMgwCyugW/ysBWq1hJ5ytR30lOBf0v221i0KAERHAg2YBkocBh4AkAOAEEIS5Vg7OR53McjNddHtdIc7RwPPta4yjAQCveCTw8eQXzsKmX5wgorrp6Hnrx2HPjxF1+uaTmoajtyh5WqsxMJTqAt+1ZLnBXWVRHjq6AEUeyTfLsDH3uE33KXz37MlPc+c/pTXlp4u4Jv/FhQ+z80JsdKwCGt4A9q7PhZM7q1P+aYU7vTC5P7GpO+K6Flq7/ZuX8/OXk87vepqgFBPuOgWWiV43zal2jI3dbA+dSdclzQ3yhfk8Fsk6wIACASPjQGOI5Hc/0GhNfh2aCOGXEX/b/hnzFnVQUNeIZi21NinGFwTIIK+8aezDaDawF0/u1i9u1iD07VIJ4TGTv4gIQS2AMC0GwGYAgKESdEQSHJ9CGSWyIdAHk8WFhKSpUkN/MnoVBmrsCJvMNBtk6FniExqb8jMZgvjOUQW1rolS71I4k9GpqDgSu6fE6dKrFq97oNzz7nICOmv5txClBPFw/mPG77oFrlMVKy0OLqmsRy00TNwMlHq0s0ii5aSmZmSTpcSVlp6OlkK6bSzMrMwUepgJqan0Y4EjygSHFnjnJzSuJY6HUzq8ZbeWcI6ORmRYkqW0MHKymIIhnMjcNqsBhFJZg0zn4SMWVnPKolEohQAAA==")
@@ -23,10 +19,11 @@
 
       html,
       body {
+        transition-behavior: allow-discrete;
         font-family: "Lumon Industries";
         background-image: radial-gradient(rgba(25, 65, 100, 0.75), black 120%);
-        height: 100lvh;
-        width: 100lvw;
+        height: 100svh;
+        min-height: 100svh;
       }
 
       body::before {
@@ -51,43 +48,72 @@
         background-size: 100% 4px, 4px 100%;
         pointer-events: none;
       }
-
-      /* text {
-        user-select: none;
-        font-size: 1.5rem;
-      } */
-
       .node {
         transition: opacity 0.3s;
       }
+      .node text {
+        transition: transform 0.2s ease;
+      }
+
       .drop-box {
         transition: x 0.3s, y 0.3s;
       }
 
-      svg {
-        touch-action: none; /* Disable default touch behaviors like panning and zooming */
+      dialog {
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        position: fixed;
+      }
+
+      dialog[open] {
+        animation: myFadeIn 0.3s ease normal;
+      }
+
+      @keyframes myFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      #startModal::backdrop,
+      #winModal::backdrop {
+        background: rgba(0, 0, 0, 0.5);
+      }
+
+      #startModal .mobileText {
+        /* display: none; */
+      }
+
+      @media (pointer: coarse) {
+        #startModal .mobileText {
+          display: block;
+        }
+        #startModal form {
+          display: none;
+        }
       }
     </style>
   </head>
   <body
-    class="relative overflow-hidden text-[#bdffff] bg-[#001d2f] h-screen w-screen p-4">
+    class="relative overflow-hidden text-[#bdffff] bg-[#001d2f] w-screen p-4">
     <header
-      class="flex justify-between items-center border-2 border-[#bdffff] p-3">
+      class="flex justify-between items-center border-2 border-[#bdffff] p-3 max-sm:pr-0 max-h-16">
       <div class="flex gap-4">
-        <h1 class="text-4xl">Microdata Refinement</h1>
-        <button
-          id="resetButton"
-          class="border p-2 text-lg leading-none cursor-pointer hover:text-white transition-all duration-75 ease-in-out">
-          Reset
-        </button>
+        <h1 class="sm:text-3xl text-lg w-max">Microdata Refinement</h1>
       </div>
 
-      <div class="relative">
-        <div class="text-center text-2xl uppercase">Lumon</div>
+      <div class="relative grid grid-cols-1 grid-rows-1 items-center">
         <div
-          class="absolute -translate-y-[10%] -top-1/2 left-1/2 -translate-x-1/2 h-20">
+          class="text-center text-base sm:text-2xl uppercase col-start-1 row-start-1">
+          Lumon
+        </div>
+        <div class="col-start-1 row-start-1">
           <svg
-            class="w-auto h-full aspect-[686/394]"
+            class="w-auto h-18 aspect-[686/394]"
             viewBox="0 0 686 394"
             xmlns="http://www.w3.org/2000/svg">
             <path
@@ -97,14 +123,77 @@
         </div>
       </div>
     </header>
+
     <main class="w-full h-full">
-      <!-- <canvas id="numbersCanvas" class=""></canvas> -->
       <svg id="numbersSVG" class="h-full w-full overflow-visible"></svg>
     </main>
-    <div class="absolute bottom-5 left-5">
-      <p>
-        <a href="https://github.com/mjkgarrow" target="_blank">By Matt G</a>
-      </p>
-    </div>
+
+    <footer
+      class="absolute left-0 px-4 bottom-5 flex w-full justify-between pointer-events-none">
+      <a
+        href="https://github.com/mjkgarrow"
+        target="_blank"
+        class="pointer-events-auto"
+        ><svg
+          class="w-8 h-auto sm:w-10"
+          viewBox="0 0 98 96"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"
+            fill="#bdffff" /></svg
+      ></a>
+      <button
+        id="resetButton"
+        class="border p-2 text-lg leading-none cursor-pointer pointer-events-auto hover:text-white transition-all duration-75 ease-in-out">
+        Reset
+      </button>
+    </footer>
+
+    <dialog id="startModal" class="bg-transparent z-[99] place-content-center">
+      <div class="relative max-w-[500px] mx-auto bg-blue-200 rounded-md p-4">
+        <form
+          method="dialog"
+          class="relative flex flex-col justify-center gap-3">
+          <h1 class="text-base sm:text-xl text-center text-balance">
+            Move your mouse around to find
+            <span
+              class="word-break-keep inline-block underline text-lg sm:text-2xl"
+              >bad numbers</span
+            >.
+          </h1>
+          <h1 class="text-base sm:text-xl text-center text-balance">
+            Click and drag the numbers to the dropbox below to delete them.
+          </h1>
+          <button
+            id="startButton"
+            type="submit"
+            class="text-2xl text-white border-black border p-2 rounded-md bg-black/20 hover:bg-black/50 cursor-pointer transition-all duration-75 ease-in-out">
+            Play
+          </button>
+        </form>
+        <h1 class="mobileText text-base sm:text-xl text-center text-balance">
+          To play this game you need a Lumon<sup>™</sup> approved non-touch
+          device.
+        </h1>
+      </div>
+    </dialog>
+    <dialog id="winModal" class="bg-transparent z-[99] place-content-center">
+      <div class="relative">
+        <img
+          src="https://media1.tenor.com/m/9reBthUo2HIAAAAd/severance-dance.gif"
+          alt="dance party"
+          class="winnerGIF" />
+        <h1
+          class="text-lg text-white absolute bottom-[calc(100%+1rem)] w-full sm:w-max left-1/2 -translate-x-1/2 bg-black/50 text-center">
+          Congratulations! You deserve a Music/Dance Experience...
+        </h1>
+        <button
+          class="text-2xl text-white border-black border p-2 rounded-md bg-black/20 absolute bottom-5 left-1/2 -translate-x-1/2 hover:bg-black/50 cursor-pointer transition-all duration-75 ease-in-out">
+          Play again
+        </button>
+      </div>
+    </dialog>
   </body>
 </html>
